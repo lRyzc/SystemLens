@@ -47,9 +47,14 @@ class CollectorTests(unittest.TestCase):
 
     def test_missing_frequency_api_does_not_break_sample(self):
         import psutil
-        with patch.object(psutil, 'cpu_freq', create=True):
-            del psutil.cpu_freq
+        original = getattr(psutil, 'cpu_freq', None)
+        if original is not None:
+            delattr(psutil, 'cpu_freq')
+        try:
             sample = Collector().sample()
+        finally:
+            if original is not None:
+                psutil.cpu_freq = original
         self.assertIsNone(sample['frequency_mhz'])
         self.assertGreater(sample['memory_total'], 0)
 
