@@ -145,8 +145,8 @@ class Collector:
         temperatures = optional(lambda: psutil.sensors_temperatures(), {})
         values = [entry.current for group in temperatures.values() for entry in group
                   if entry.current is not None and -20 <= entry.current <= 150]
-        battery = optional(psutil.sensors_battery)
-        frequency = optional(psutil.cpu_freq)
+        battery = optional(lambda: psutil.sensors_battery())
+        frequency = optional(lambda: psutil.cpu_freq())
         self.sequence += 1
         sample = {
             "id": self.sequence, "timestamp": datetime.now(timezone.utc).isoformat(),

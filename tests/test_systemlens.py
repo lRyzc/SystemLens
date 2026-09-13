@@ -45,6 +45,14 @@ class CollectorTests(unittest.TestCase):
             collector.stop()
         self.assertFalse(collector.thread.is_alive())
 
+    def test_missing_frequency_api_does_not_break_sample(self):
+        import psutil
+        with patch.object(psutil, 'cpu_freq', create=True):
+            del psutil.cpu_freq
+            sample = Collector().sample()
+        self.assertIsNone(sample['frequency_mhz'])
+        self.assertGreater(sample['memory_total'], 0)
+
     def test_csv_preserves_units_and_does_not_export_processes(self):
         raw = export_csv([{"timestamp": "2026-01-01T00:00:00+00:00", "cpu": 12.5,
                            "download": 1024, "processes": [{"name": "private"}]}])
