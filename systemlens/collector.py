@@ -10,6 +10,8 @@ import time
 
 import psutil
 
+from .hardware import discover
+
 LOG = logging.getLogger(__name__)
 
 
@@ -34,6 +36,8 @@ class Collector:
         self.lock = threading.Lock()
         self.stop_event = threading.Event()
         self.thread = None
+        self.hardware_thread = None
+        self.hardware = {"status": "loading", "cpu": [], "memory": [], "disks": [], "graphics": []}
         self.error = None
         self.latest = None
         self.previous = None
@@ -48,8 +52,15 @@ class Collector:
         }
 
     def start(self):
+        self.hardware_thread = threading.Thread(target=self._hardware, name="systemlens-hardware", daemon=True)
+        self.hardware_thread.start()
         self.thread = threading.Thread(target=self._run, name="systemlens-sampler", daemon=True)
         self.thread.start()
+
+    def _hardware(self):
+        hardware = discover()
+        with self.lock:
+            self.hardware = hardware
 
     def stop(self):
         self.stop_event.set()
@@ -76,7 +87,7 @@ class Collector:
 
     def snapshot(self):
         with self.lock:
-            return {"system": self.system, "samples": list(self.history), "latest": self.latest, "error": self.error,
+            return {"system": self.system, "hardware": self.hardware, "samples": list(self.history), "latest": self.latest, "error": self.error,
                     "interval": self.interval, "capacity": self.history.maxlen}
 
     def sample(self):

@@ -9,6 +9,15 @@
   --mono:'Cascadia Code','SFMono-Regular',Consolas,monospace;
 }
 
+.hardware { margin-bottom: 24px; }
+.hardware-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 24px 24px; gap: 16px; }
+.hardware-grid article { min-width: 0; padding: 19px; border: 1px solid var(--line); border-radius: 4px; background: #121410; }
+.hardware-grid h3 { margin: 0 0 18px; font: 10px var(--mono); color: var(--gold); letter-spacing: 1px; }
+.hardware-item + .hardware-item { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.hardware-item strong { font-size: 14px; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; }
+.hardware-grid p { font: 10px/1.8 var(--mono); color: var(--muted); margin: 8px 0 0; }
+@media (max-width: 850px) { .hardware-grid { grid-template-columns: 1fr; padding: 0 18px 18px; } }
+
 * {
   box-sizing:border-box;
 }

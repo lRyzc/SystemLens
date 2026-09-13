@@ -56,6 +56,7 @@ function renderProcesses() {
   for (const field of ["cpu", "memory"]) document.querySelector(`[data-sort="${field}"]`).closest("th").setAttribute("aria-sort", sort === field ? descending ? "descending" : "ascending" : "none");
 }
 function render() {
+  renderHardware();
   if (!data?.latest) return;
   const s = data.latest, system = data.system;
   text("cpu", number(s.cpu)); text("memory", number(s.memory_percent));
@@ -96,6 +97,49 @@ function render() {
   text("uptime", `${Math.floor(s.uptime / 86400)}d ${Math.floor(s.uptime % 86400 / 3600)}h ${Math.floor(s.uptime % 3600 / 60)}min`);
   text("battery", s.battery ? `${number(s.battery.percent, 0)}% · ${s.battery.plugged ? "Na tomada" : "Em uso"}` : "Não detectada");
   text("updated", `Última leitura ${timeLabel(s.timestamp)} · intervalo de ${data.interval}s`);
+}
+let hardwareSignature = "";
+function renderHardware() {
+  const hardware = data?.hardware;
+  if (!hardware) return;
+  const signature = JSON.stringify(hardware);
+  if (signature === hardwareSignature) return;
+  hardwareSignature = signature;
+  const labels = {cpu: "PROCESSADOR", memory: "MÓDULOS DE MEMÓRIA", disks: "DISCOS FÍSICOS", graphics: "ADAPTADORES DE VÍDEO"};
+  const cards = Object.entries(labels).map(([key, label]) => {
+    const card = document.createElement("article"), title = document.createElement("h3");
+    title.textContent = label; card.append(title);
+    const components = hardware[key] || [];
+    if (!components.length) {
+      const note = document.createElement("p");
+      note.textContent = hardware.status === "loading" ? "Identificando…" : "Modelo não disponibilizado pelo sistema";
+      card.append(note);
+    }
+    components.forEach(component => {
+      const item = document.createElement("div"), model = document.createElement("strong"), details = document.createElement("p");
+      item.className = "hardware-item";
+      model.textContent = component.model || "Modelo não informado";
+      const parts = [];
+      if (component.manufacturer) parts.push(component.manufacturer);
+      if (component.capacity) parts.push(size(component.capacity));
+      if (component.speed_mts) parts.push(`${component.speed_mts} MT/s configurados`);
+      if (component.slot) parts.push(component.slot);
+      details.textContent = parts.join(" · ");
+      item.append(model);
+      if (parts.length) item.append(details);
+      card.append(item);
+    });
+    return card;
+  });
+  $("hardware-grid").replaceChildren(...cards);
+  const notes = {
+    loading: "Identificando componentes em segundo plano…",
+    ready: "Identificação feita ao iniciar · RAM identificada pelo código do módulo · adaptadores virtuais também podem aparecer",
+    unsupported: "Identificação detalhada disponível no Windows nesta versão. As métricas de desempenho continuam disponíveis.",
+    partial: "Alguns detalhes não foram fornecidos pelo sistema ou estão sem permissão de leitura.",
+    unavailable: "Não foi possível consultar os modelos. As métricas de desempenho continuam disponíveis."
+  };
+  text("hardware-note", notes[hardware.status] || notes.unavailable);
 }
 $("pause").addEventListener("click", () => {
   paused = !paused;

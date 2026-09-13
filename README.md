@@ -53,6 +53,7 @@ O comando `systemlens` também fica disponível no ambiente virtual após a inst
 | Recurso | Leituras |
 | --- | --- |
 | CPU | Uso total, carga por thread lógica e frequência disponível |
+| Identidade do hardware (Windows) | Modelo da CPU e GPUs, código e capacidade de cada módulo RAM, velocidade configurada e modelos dos discos físicos |
 | Memória | Percentual, capacidade e uso calculado como total menos disponível |
 | Armazenamento | Ocupação dos volumes montados e taxas agregadas de leitura e gravação |
 | Rede | Entrada e saída agregadas de todas as interfaces, em bytes por segundo |
@@ -77,7 +78,9 @@ O histórico começa vazio; os gráficos crescem conforme as leituras chegam, se
 
 ## Limites conhecidos
 
-- GPU não é monitorada nesta versão.
+- O modelo dos adaptadores de vídeo é identificado no Windows; uso e temperatura da GPU não são monitorados nesta versão. Adaptadores virtuais também podem aparecer.
+- A ficha de hardware usa CIM do Windows uma vez ao iniciar, em segundo plano. A identificação por modelo em Linux/macOS ainda não está implementada. Permissões, BIOS e drivers podem limitar os detalhes disponíveis.
+- O código do módulo RAM (part number) é exibido como modelo, sem inferir o nome comercial. A velocidade é a configurada em MT/s, não necessariamente a nominal do kit. Discos físicos e volumes montados são apresentados separadamente.
 - Temperaturas normalmente não são expostas pelo `psutil` no Windows ou macOS. A interface mostra “Indisponível”; não estima valores. O sensor térmico representa o maior sensor reportado, não necessariamente a CPU.
 - Frequência, bateria e contadores de I/O dependem do SO e do hardware.
 - Rede agrega interfaces, inclusive virtuais/loopback. Não mede velocidade contratada da internet.
@@ -92,6 +95,7 @@ O histórico começa vazio; os gráficos crescem conforme as leituras chegam, se
 systemlens/
   __main__.py       CLI e ciclo de vida
   collector.py      Coleta, taxas e histórico
+  hardware.py       Identificação de componentes via CIM do Windows
   server.py         API local, arquivos estáticos e exportação
   static/
     index.html     Interface sem framework
