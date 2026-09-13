@@ -30,6 +30,7 @@ class HardwareTests(unittest.TestCase):
 
     @patch('systemlens.hardware.platform.system', return_value='Windows')
     @patch('systemlens.hardware.subprocess.run', side_effect=subprocess.TimeoutExpired('powershell', 25))
+    @patch.dict('sys.modules', {'winreg': None})
     def test_query_timeout_preserves_a_valid_payload(self, *_):
         result = discover()
         self.assertEqual(result['status'], 'partial')

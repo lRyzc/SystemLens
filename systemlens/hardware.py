@@ -91,7 +91,7 @@ def discover():
                 model = clean(winreg.QueryValueEx(key, 'ProcessorNameString')[0])
                 if model:
                     result['cpu'] = [{'model': model}]
-        except OSError:
+        except (OSError, ImportError):
             pass
     if not all(result[key] for key in ('cpu', 'memory', 'disks', 'graphics')):
         result['status'] = 'partial'
