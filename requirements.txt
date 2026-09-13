@@ -1,0 +1,2 @@
+# Alternativa para executar diretamente a partir do código-fonte.
+psutil>=7.0,<8
