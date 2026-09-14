@@ -10,7 +10,17 @@ Python · Métricas do sistema · Visualização de dados
 
 *Imagem de apresentação com dados ilustrativos. Ao executar, todas as métricas vêm do seu computador.*
 
-## Rodar em dois minutos
+## Aplicativo para Windows — sem instalar Python
+
+1. Baixe **SystemLens.exe** na [versão mais recente](https://github.com/lRyzc/SystemLens/releases/latest).
+2. Abra o arquivo com dois cliques. O painel aparece em uma janela própria, sem terminal e sem abrir o navegador.
+3. Feche a janela para encerrar a coleta. Use **Exportar CSV** para salvar o histórico.
+
+Aplicativo portátil para **Windows 10/11 x64**. Requer **Microsoft Edge WebView2 Runtime**, normalmente presente no Windows; se necessário, instale pelo [site oficial da Microsoft](https://developer.microsoft.com/microsoft-edge/webview2/). O Python e as dependências do monitor já estão incluídos. O primeiro início pode levar alguns segundos para extrair os componentes temporários.
+
+O executável ainda não tem assinatura digital comercial; o Windows pode exibir um aviso de editor desconhecido. A release inclui o SHA-256 do arquivo para conferência. Não é necessário executar como administrador. O app usa uma porta local livre e a libera ao fechar.
+
+## Rodar pelo código-fonte
 
 Requer **Python 3.10 ou superior**. Funciona em Windows, Linux e macOS, respeitando os recursos e as permissões de cada sistema.
 
@@ -96,6 +106,7 @@ systemlens/
   __main__.py       CLI e ciclo de vida
   collector.py      Coleta, taxas e histórico
   hardware.py       Identificação de componentes via CIM do Windows
+  desktop.py        Janela Windows e encerramento do servidor ao fechar
   server.py         API local, arquivos estáticos e exportação
   static/
     index.html     Interface sem framework
@@ -114,6 +125,20 @@ python -m unittest discover -s tests -v
 ```
 
 O workflow do GitHub Actions executa os testes em Windows, Linux e macOS com Python 3.10 e 3.13. Os testes verificam deltas, reinício de contadores, sensores ausentes, amostras reais, limite de histórico, exportação, arquivos estáticos e isolamento de origem.
+
+## Gerar o executável
+
+No Windows x64 com Python 3.12, dentro de um ambiente virtual:
+
+```powershell
+python -m pip install -r requirements-build.txt
+python -m unittest discover -s tests -v
+python -m PyInstaller --noconfirm SystemLens.spec
+```
+
+O resultado fica em `dist/SystemLens.exe`. O workflow manual **Windows executable** também gera o binário como artefato do GitHub Actions. O código e a receita de build são versionados; o binário é distribuído em Releases.
+
+Para executar a janela sem empacotar: `python -m pip install ".[desktop]"` e `python -m systemlens.desktop` (Windows).
 
 ## Licença
 

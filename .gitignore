@@ -10,3 +10,5 @@ dist/
 *.csv
 *.log
 .DS_Store
+*.exe
+*.sha256
